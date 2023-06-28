@@ -1,0 +1,39 @@
+FROM jenkins/jenkins:lts
+ENV JENKINS_OPTS --prefix=/jenkins --httpPort=8080
+USER root
+
+RUN apt-get update && \
+    apt-get -y install apt-transport-https \
+    ca-certificates \
+    curl \
+    wget \
+    sudo \
+    gnupg2 \
+    software-properties-common
+
+RUN curl -fsSL https://download.docker.com/linux/$(. /etc/os-release; echo "$ID")/gpg > /tmp/dkey; apt-key add /tmp/dkey && \
+    add-apt-repository \
+    "deb [arch=amd64] https://download.docker.com/linux/$(. /etc/os-release; echo "$ID") \
+    $(lsb_release -cs) \
+    stable" && \
+    apt-get update && \
+    apt-get -y install docker-ce
+
+RUN curl -fsSL https://apt.releases.hashicorp.com/gpg | gpg --dearmor -o /usr/share/keyrings/hashicorp-keyring.gpg && \
+    echo "deb [arch=amd64 signed-by=/usr/share/keyrings/hashicorp-keyring.gpg] https://apt.releases.hashicorp.com $(lsb_release -cs) main" | tee /etc/apt/sources.list.d/hashicorp.list && \
+    apt-get update && \
+    apt-get -y install vault \
+    jq
+
+
+RUN curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 && \
+    chmod 700 get_helm.sh && \
+    ./get_helm.sh
+
+# vault json to yaml
+RUN wget -qO /usr/local/bin/yq https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64 && \
+    sudo chmod a+x /usr/local/bin/yq
+
+
+RUN git config --global user.name Jenkins && \
+    git config --global user.email chirakid.k@gmail.com

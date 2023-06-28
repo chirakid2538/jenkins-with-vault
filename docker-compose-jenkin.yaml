@@ -1,0 +1,17 @@
+version: "3.8"
+
+services:
+  jenkins:
+    container_name: devops-jenkins
+    build:
+      context: ./jenkins-script
+      dockerfile: Dockerfile.jenkins
+    privileged: true
+    user: root
+    ports:
+      - 8080:8080
+      - 50000:50000
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./jenkins:/var/jenkins_home
+      - ./jenkins-script:/opt/jenkins-script

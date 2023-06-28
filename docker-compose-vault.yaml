@@ -1,0 +1,14 @@
+version: "3.8"
+
+services:
+  vault:
+    container_name: devops-vault
+    image: vault:latest
+    restart: unless-stopped
+    volumes:
+      - ./vault/vault.hcl:/etc/vault.hcl
+    cap_add:
+      - IPC_LOCK
+    ports:
+      - 8200:8200
+    command: "server -config=/etc/vault.hcl"
